@@ -91,6 +91,24 @@ class _RandomImagePageState extends State<RandomImagePage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      SizedBox(
+                        height: 32,
+                        child: AnimatedOpacity(
+                          opacity: store.error != null ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 200),
+                          child: Semantics(
+                            label: 'Image load message',
+                            child: Text(
+                              store.error ?? '',
+                              style: TextStyle(
+                                color: Colors.red[400],
+                                fontSize: 12,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
                       Semantics(
                         label: 'Load another random image',
                         button: true,
@@ -100,21 +118,6 @@ class _RandomImagePageState extends State<RandomImagePage> {
                           onPressed: store.isLoading ? null : _loadImage,
                         ),
                       ),
-                      if (store.error != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12),
-                          child: Semantics(
-                            label: 'Image load message',
-                            child: Text(
-                              store.error!,
-                              style: TextStyle(
-                                color: Colors.red[400],
-                                fontSize: 12,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
                       const SizedBox(height: 20),
                       Text(
                         "Tap 'Another' for a new image",
