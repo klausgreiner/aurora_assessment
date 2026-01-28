@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../error/error.dart';
 import '../logger/logger.dart';
 
 class ImagePrecacheService {
@@ -38,7 +39,10 @@ class ImagePrecacheService {
         timeoutTimer?.cancel();
         PaintingBinding.instance.imageCache.evict(provider);
         if (!completer.isCompleted) {
-          completer.complete(false);
+          completer.completeError(
+            _convertToFailure(error, url),
+            stackTrace,
+          );
         }
         stream.removeListener(listener);
       },
@@ -49,14 +53,41 @@ class ImagePrecacheService {
       logger.warning('ImagePrecacheService.precacheUrl: Timeout after ${duration.inMilliseconds}ms for $url');
       if (!completer.isCompleted) {
         PaintingBinding.instance.imageCache.evict(provider);
-        completer.complete(false);
+        completer.completeError(
+          NetworkFailure('Image load timed out after 3 seconds'),
+        );
         stream.removeListener(listener);
       }
     });
 
     stream.addListener(listener);
-    final result = await completer.future;
-    logger.info('ImagePrecacheService.precacheUrl: Completed with result=$result');
-    return result;
+    
+    try {
+      final result = await completer.future;
+      logger.info('ImagePrecacheService.precacheUrl: Completed with result=$result');
+      return result;
+    } catch (e) {
+      logger.error('ImagePrecacheService.precacheUrl: Exception thrown', e);
+      rethrow;
+    }
+  }
+
+  Failure _convertToFailure(Object error, String url) {
+    final errorString = error.toString();
+    logger.info('ImagePrecacheService._convertToFailure: Converting error: $errorString');
+    
+    if (errorString.contains('404')) {
+      return NetworkFailure('Image not found (404). The image may have been removed.');
+    } else if (errorString.contains('403')) {
+      return NetworkFailure('Access denied (403). Cannot load this image.');
+    } else if (errorString.contains('500') || errorString.contains('502') || errorString.contains('503')) {
+      return NetworkFailure('Server error. Please try again.');
+    } else if (errorString.contains('timeout') || errorString.contains('Timeout')) {
+      return NetworkFailure('Image load timed out. Please try again.');
+    } else if (errorString.contains('network') || errorString.contains('Network')) {
+      return NetworkFailure('Network error. Please check your connection.');
+    } else {
+      return NetworkFailure('Failed to load image. Please try again.');
+    }
   }
 }

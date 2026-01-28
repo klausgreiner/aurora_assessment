@@ -75,27 +75,48 @@ abstract class _RandomImageStore with Store {
       final newImageUrl = image.url;
       logger.info('RandomImageStore.load: Got image URL: $newImageUrl');
 
-      logger.info('RandomImageStore.load: Starting Future.wait for precache and color extraction');
-      final results = await Future.wait([
-        precacheService.precacheUrl(url: newImageUrl, context: context),
-        colorExtractor.gradientColors(CachedNetworkImageProvider(newImageUrl)),
-      ]);
-      logger.info('RandomImageStore.load: Future.wait completed');
+      logger.info('RandomImageStore.load: Starting precache');
+      bool precacheOk = false;
+      try {
+        precacheOk = await precacheService.precacheUrl(url: newImageUrl, context: context);
+        logger.info('RandomImageStore.load: Precache completed with result: $precacheOk');
+      } catch (e) {
+        logger.error('RandomImageStore.load: Precache threw exception', e);
+        if (e is Failure) {
+          error = e.message;
+        } else {
+          error = 'Could not load that image. Try again.';
+        }
+        return;
+      }
       
       if (!context.mounted) {
         logger.warning('RandomImageStore.load: Context not mounted, returning early');
         return;
       }
 
-      final ok = results[0] as bool;
-      logger.info('RandomImageStore.load: Precache result: $ok');
-      if (!ok) {
-        logger.warning('RandomImageStore.load: Precache failed, setting error');
+      if (!precacheOk) {
+        logger.warning('RandomImageStore.load: Precache returned false, setting error');
         error = 'Could not load that image. Try again.';
         return;
       }
 
-      final newGradientColors = results[1] as List<Color>;
+      logger.info('RandomImageStore.load: Starting color extraction');
+      List<Color> newGradientColors;
+      try {
+        newGradientColors = await colorExtractor.gradientColors(CachedNetworkImageProvider(newImageUrl));
+        if (newGradientColors.isEmpty) {
+          logger.warning('RandomImageStore.load: Color extraction returned empty list');
+          error = 'Could not extract colors from image. Try again.';
+          return;
+        }
+        logger.info('RandomImageStore.load: Color extraction completed with ${newGradientColors.length} colors');
+      } catch (e, stackTrace) {
+        logger.error('RandomImageStore.load: Color extraction failed', e, stackTrace);
+        error = 'Could not extract colors from image. Try again.';
+        return;
+      }
+      
       logger.info('RandomImageStore.load: Setting imageUrl and gradientColors');
       imageUrl = newImageUrl;
       gradientColors = newGradientColors;
@@ -127,26 +148,47 @@ abstract class _RandomImageStore with Store {
       logger.info('RandomImageStore.loadNext: Got image URL: $newImageUrl');
 
       logger.info('RandomImageStore.loadNext: Starting Future.wait for precache and color extraction');
-      final results = await Future.wait([
-        precacheService.precacheUrl(url: newImageUrl, context: context),
-        colorExtractor.gradientColors(CachedNetworkImageProvider(newImageUrl)),
-      ]);
-      logger.info('RandomImageStore.loadNext: Future.wait completed');
+      bool precacheOk = false;
+      try {
+        precacheOk = await precacheService.precacheUrl(url: newImageUrl, context: context);
+        logger.info('RandomImageStore.loadNext: Precache completed with result: $precacheOk');
+      } catch (e) {
+        logger.error('RandomImageStore.loadNext: Precache threw exception', e);
+        if (e is Failure) {
+          error = e.message;
+        } else {
+          error = 'Could not load that image. Try again.';
+        }
+        return;
+      }
       
       if (!context.mounted) {
         logger.warning('RandomImageStore.loadNext: Context not mounted, returning early');
         return;
       }
 
-      final ok = results[0] as bool;
-      logger.info('RandomImageStore.loadNext: Precache result: $ok');
-      if (!ok) {
-        logger.warning('RandomImageStore.loadNext: Precache failed, setting error');
+      if (!precacheOk) {
+        logger.warning('RandomImageStore.loadNext: Precache returned false, setting error');
         error = 'Could not load that image. Try again.';
         return;
       }
 
-      final newGradientColors = results[1] as List<Color>;
+      logger.info('RandomImageStore.loadNext: Starting color extraction');
+      List<Color> newGradientColors;
+      try {
+        newGradientColors = await colorExtractor.gradientColors(CachedNetworkImageProvider(newImageUrl));
+        if (newGradientColors.isEmpty) {
+          logger.warning('RandomImageStore.loadNext: Color extraction returned empty list');
+          error = 'Could not extract colors from image. Try again.';
+          return;
+        }
+        logger.info('RandomImageStore.loadNext: Color extraction completed with ${newGradientColors.length} colors');
+      } catch (e, stackTrace) {
+        logger.error('RandomImageStore.loadNext: Color extraction failed', e, stackTrace);
+        error = 'Could not extract colors from image. Try again.';
+        return;
+      }
+
       logger.info('RandomImageStore.loadNext: Calling stageNext');
       stageNext(url: newImageUrl, gradientColors: newGradientColors);
       logger.info('RandomImageStore.loadNext: LoadNext completed successfully');
