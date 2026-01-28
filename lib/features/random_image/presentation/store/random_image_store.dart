@@ -12,8 +12,13 @@ abstract class _RandomImageStore with Store {
   final GetRandomImage getRandomImage;
   final ImageColorExtractor colorExtractor;
   final ImagePrecacheService precacheService;
+  final Logger logger;
 
-  _RandomImageStore(this.getRandomImage, this.colorExtractor, this.precacheService);
+  _RandomImageStore(this.getRandomImage, this.colorExtractor, this.precacheService, this.logger) {
+    reaction((_) => isLoading, (bool value) {
+      logger.info('RandomImageStore: isLoading changed to $value');
+    });
+  }
 
   @observable
   String? imageUrl;
@@ -60,61 +65,100 @@ abstract class _RandomImageStore with Store {
 
   @action
   Future<void> load({required BuildContext context}) async {
+    logger.info('RandomImageStore.load: Starting load');
     isLoading = true;
     error = null;
 
     try {
+      logger.info('RandomImageStore.load: Calling getRandomImage()');
       final image = await getRandomImage();
       final newImageUrl = image.url;
+      logger.info('RandomImageStore.load: Got image URL: $newImageUrl');
 
+      logger.info('RandomImageStore.load: Starting Future.wait for precache and color extraction');
       final results = await Future.wait([
         precacheService.precacheUrl(url: newImageUrl, context: context),
         colorExtractor.gradientColors(CachedNetworkImageProvider(newImageUrl)),
       ]);
-      if (!context.mounted) return;
+      logger.info('RandomImageStore.load: Future.wait completed');
+      
+      if (!context.mounted) {
+        logger.warning('RandomImageStore.load: Context not mounted, returning early');
+        return;
+      }
 
       final ok = results[0] as bool;
+      logger.info('RandomImageStore.load: Precache result: $ok');
       if (!ok) {
+        logger.warning('RandomImageStore.load: Precache failed, setting error');
         error = 'Could not load that image. Try again.';
         return;
       }
 
       final newGradientColors = results[1] as List<Color>;
+      logger.info('RandomImageStore.load: Setting imageUrl and gradientColors');
       imageUrl = newImageUrl;
       gradientColors = newGradientColors;
-    } catch (e) {
-      error = 'Could not load that image. Try again.';
+      logger.info('RandomImageStore.load: Load completed successfully');
+    } catch (e, stackTrace) {
+      logger.error('RandomImageStore.load: Exception caught', e, stackTrace);
+      if (e is Failure) {
+        error = e.message;
+      } else {
+        error = 'Could not load that image. Try again.';
+      }
     } finally {
+      logger.info('RandomImageStore.load: Setting isLoading=false');
       isLoading = false;
     }
   }
 
   @action
   Future<void> loadNext({required BuildContext context}) async {
+    logger.info('RandomImageStore.loadNext: Starting loadNext - isLoading was: $isLoading');
     isLoading = true;
     error = null;
+    logger.info('RandomImageStore.loadNext: Set isLoading=true, error=null');
 
     try {
+      logger.info('RandomImageStore.loadNext: Calling getRandomImage()');
       final image = await getRandomImage();
       final newImageUrl = image.url;
+      logger.info('RandomImageStore.loadNext: Got image URL: $newImageUrl');
 
+      logger.info('RandomImageStore.loadNext: Starting Future.wait for precache and color extraction');
       final results = await Future.wait([
         precacheService.precacheUrl(url: newImageUrl, context: context),
         colorExtractor.gradientColors(CachedNetworkImageProvider(newImageUrl)),
       ]);
-      if (!context.mounted) return;
+      logger.info('RandomImageStore.loadNext: Future.wait completed');
+      
+      if (!context.mounted) {
+        logger.warning('RandomImageStore.loadNext: Context not mounted, returning early');
+        return;
+      }
 
       final ok = results[0] as bool;
+      logger.info('RandomImageStore.loadNext: Precache result: $ok');
       if (!ok) {
+        logger.warning('RandomImageStore.loadNext: Precache failed, setting error');
         error = 'Could not load that image. Try again.';
         return;
       }
 
       final newGradientColors = results[1] as List<Color>;
+      logger.info('RandomImageStore.loadNext: Calling stageNext');
       stageNext(url: newImageUrl, gradientColors: newGradientColors);
-    } catch (e) {
-      error = 'Could not load that image. Try again.';
+      logger.info('RandomImageStore.loadNext: LoadNext completed successfully');
+    } catch (e, stackTrace) {
+      logger.error('RandomImageStore.loadNext: Exception caught', e, stackTrace);
+      if (e is Failure) {
+        error = e.message;
+      } else {
+        error = 'Could not load that image. Try again.';
+      }
     } finally {
+      logger.info('RandomImageStore.loadNext: Setting isLoading=false');
       isLoading = false;
     }
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import '../../../../core/core.dart';
+import '../../../../core/di/di.dart';
 import '../store/store.dart';
 import '../widgets/widgets.dart';
 
@@ -13,15 +14,19 @@ class RandomImagePage extends StatefulWidget {
 
 class _RandomImagePageState extends State<RandomImagePage> {
   late final RandomImageStore store;
+  late final Logger logger;
 
   @override
   void initState() {
     super.initState();
     store = getIt<RandomImageStore>();
+    logger = getIt<Logger>();
   }
 
   Future<void> _loadImage() async {
+    logger.info('RandomImagePage._loadImage: Button pressed, isLoading=${store.isLoading}');
     await store.loadNext(context: context);
+    logger.info('RandomImagePage._loadImage: loadNext completed, isLoading=${store.isLoading}');
   }
 
   @override
