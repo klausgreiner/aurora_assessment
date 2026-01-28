@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class PullingColorButton extends StatefulWidget {
@@ -72,63 +73,84 @@ class _PullingColorButtonState extends State<PullingColorButton>
 
   @override
   Widget build(BuildContext context) {
-    final buttonColors = widget.isLoading ? widget.gradientColors : [Colors.white];
-    final contrastColor = widget.isLoading
-        ? _getContrastColor(widget.gradientColors)
-        : Colors.black;
+    final contrastColor = _getContrastColor(widget.gradientColors);
 
     return AnimatedBuilder(
       animation: Listenable.merge([_gradientAnimation, _textOpacityAnimation]),
       builder: (context, child) {
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: widget.isLoading
-                ? LinearGradient(
-                    begin: Alignment(_gradientAnimation.value, 0),
-                    end: Alignment(_gradientAnimation.value + 1, 0),
-                    colors: buttonColors,
-                  )
-                : null,
-            color: widget.isLoading ? null : Colors.white,
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: widget.onPressed,
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 48,
-                  vertical: 16,
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                gradient: LinearGradient(
+                  begin: widget.isLoading
+                      ? Alignment(_gradientAnimation.value, 0)
+                      : Alignment.centerLeft,
+                  end: widget.isLoading
+                      ? Alignment(_gradientAnimation.value + 1, 0)
+                      : Alignment.centerRight,
+                  colors: widget.gradientColors,
                 ),
-                child: widget.isLoading
-                    ? Opacity(
-                        opacity: 1 - _textOpacityAnimation.value,
-                        child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              contrastColor,
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.2),
+                  width: 1,
+                ),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white.withOpacity(0.1),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: widget.onPressed,
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 48,
+                        vertical: 16,
+                      ),
+                      child: SizedBox(
+                        height: 20,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Opacity(
+                              opacity: _textOpacityAnimation.value,
+                              child: Text(
+                                'Another',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: contrastColor,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      )
-                    : Opacity(
-                        opacity: _textOpacityAnimation.value,
-                        child: Text(
-                          'Another',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: contrastColor,
-                          ),
+                            Opacity(
+                              opacity: 1 - _textOpacityAnimation.value,
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    contrastColor,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

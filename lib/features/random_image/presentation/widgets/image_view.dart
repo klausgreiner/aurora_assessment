@@ -26,7 +26,18 @@ class ImageView extends StatelessWidget {
                 curve: Curves.easeInCubic,
               ),
             );
-            return FadeTransition(opacity: opacity, child: child);
+            final scale = CurvedAnimation(
+              parent: animation,
+              curve: const Interval(0.55, 1.0, curve: Curves.easeOutBack),
+              reverseCurve: const Interval(0.0, 0.45, curve: Curves.easeIn),
+            );
+            return FadeTransition(
+              opacity: opacity,
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 0.92, end: 1.0).animate(scale),
+                child: child,
+              ),
+            );
           },
           child: imageUrl == null
               ? const SizedBox.expand(key: ValueKey('empty'))
@@ -36,8 +47,8 @@ class ImageView extends StatelessWidget {
                     image: CachedNetworkImageProvider(imageUrl!),
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.error, color: Colors.grey),
+                      color: Colors.red[100],
+                      child: Icon(Icons.error, color: Colors.red[400]),
                     ),
                   ),
                 ),
