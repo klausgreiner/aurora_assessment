@@ -1,7 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../core/core.dart';
+import '../../domain/domain.dart';
 import '../store/store.dart';
 import '../widgets/widgets.dart';
 
@@ -19,14 +20,52 @@ class _RandomImagePageState extends State<RandomImagePage> {
   void initState() {
     super.initState();
     store = getIt<RandomImageStore>();
-    store.load();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadImage();
+    });
+  }
+
+  Future<void> _loadImage() async {
+    store.isLoading = true;
+    store.error = null;
+
+    try {
+      final getRandomImage = getIt<GetRandomImage>();
+      final image = await getRandomImage();
+      final newImageUrl = image.url;
+
+      final precacheService = getIt<ImagePrecacheService>();
+      final ok = await precacheService.precacheUrl(
+        url: newImageUrl,
+        context: context,
+      );
+      if (!ok) {
+        store.error = 'Could not load that image. Keeping the current one.';
+        return;
+      }
+
+      final colorExtractor = getIt<ImageColorExtractor>();
+      final newGradientColors = await colorExtractor.gradientColors(
+        CachedNetworkImageProvider(newImageUrl),
+      );
+
+      store.imageUrl = newImageUrl;
+
+      await Future.delayed(const Duration(milliseconds: 120));
+
+      store.gradientColors = newGradientColors;
+    } catch (e) {
+      store.error = 'Could not load that image. Keeping the current one.';
+    } finally {
+      store.isLoading = false;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) => AnimatedContainer(
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 650),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -41,63 +80,50 @@ class _RandomImagePageState extends State<RandomImagePage> {
               children: [
                 Expanded(
                   child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: store.isLoading && store.imageUrl == null
-                              ? Skeletonizer(
-                                  enabled: true,
-                                  child: AspectRatio(
-                                    aspectRatio: 1,
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Container(color: Colors.white),
-                                    ),
-                                  ),
-                                )
-                              : store.imageUrl != null
-                              ? ImageView(
-                                  imageUrl: store.imageUrl!,
-                                  isLoading: false,
-                                )
-                              : const SizedBox.shrink(),
-                        ),
-                        const SizedBox(height: 32),
-                        Semantics(
-                          label: 'Load another random image',
-                          button: true,
-                          child: PullingColorButton(
-                            isLoading: store.isLoading,
-                            gradientColors: store.gradientColors,
-                            onPressed: store.isLoading ? null : store.load,
-                          ),
-                        ),
-                        if (store.error != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 16),
-                            child: Semantics(
-                              label: 'Error message',
-                              child: Text(
-                                store.error!,
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 14,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                      ],
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: ImageView(
+                        imageUrl: store.imageUrl,
+                        isLoading: store.isLoading,
+                      ),
                     ),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 32),
-                  child: Text(
-                    "Tap 'Another' for a new image",
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Semantics(
+                        label: 'Load another random image',
+                        button: true,
+                        child: PullingColorButton(
+                          isLoading: store.isLoading,
+                          gradientColors: store.gradientColors,
+                          onPressed: store.isLoading ? null : _loadImage,
+                        ),
+                      ),
+                      if (store.error != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Semantics(
+                            label: 'Image load message',
+                            child: Text(
+                              store.error!,
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 12,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 20),
+                      Text(
+                        "Tap 'Another' for a new image",
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                      ),
+                    ],
                   ),
                 ),
               ],

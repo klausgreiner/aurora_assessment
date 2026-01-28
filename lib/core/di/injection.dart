@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import '../image/image.dart';
 import '../theme/theme.dart';
 import '../../features/random_image/data/data.dart';
 import '../../features/random_image/domain/domain.dart';
@@ -15,6 +16,7 @@ void setupDI() {
   );
 
   getIt.registerLazySingleton(() => ImageColorExtractor());
+  getIt.registerLazySingleton(() => ImagePrecacheService());
 
   getIt.registerLazySingleton(
     () => RandomImageRemoteDataSource(getIt()),

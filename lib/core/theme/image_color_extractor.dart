@@ -18,8 +18,12 @@ class ImageColorExtractor {
   Future<ui.Image> _resolveImage(ImageProvider provider) async {
     final completer = Completer<ui.Image>();
     final imageStream = provider.resolve(const ImageConfiguration());
-    final listener = ImageStreamListener((ImageInfo info, bool _) {
-      completer.complete(info.image);
+    late final ImageStreamListener listener;
+    listener = ImageStreamListener((ImageInfo info, bool _) {
+      if (!completer.isCompleted) {
+        completer.complete(info.image);
+        imageStream.removeListener(listener);
+      }
     });
     imageStream.addListener(listener);
     final image = await completer.future;
@@ -28,7 +32,9 @@ class ImageColorExtractor {
   }
 
   Future<Color> _getTopColor(ui.Image image) async {
-    final pixelData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    final pixelData = await image.toByteData(
+      format: ui.ImageByteFormat.rawRgba,
+    );
     if (pixelData == null) return Colors.black;
 
     final width = image.width;
@@ -53,7 +59,9 @@ class ImageColorExtractor {
   }
 
   Future<Color> _getBottomColor(ui.Image image) async {
-    final pixelData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    final pixelData = await image.toByteData(
+      format: ui.ImageByteFormat.rawRgba,
+    );
     if (pixelData == null) return Colors.black;
 
     final width = image.width;
@@ -80,7 +88,9 @@ class ImageColorExtractor {
   }
 
   Future<Color> _getAverageColor(ui.Image image) async {
-    final pixelData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    final pixelData = await image.toByteData(
+      format: ui.ImageByteFormat.rawRgba,
+    );
     if (pixelData == null) return Colors.black;
 
     final width = image.width;

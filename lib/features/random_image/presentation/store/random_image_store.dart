@@ -39,6 +39,9 @@ abstract class _RandomImageStore with Store {
       final newGradientColors = await colorExtractor.gradientColors(provider);
 
       imageUrl = newImageUrl;
+
+      await Future.delayed(const Duration(milliseconds: 120));
+
       gradientColors = newGradientColors;
     } catch (e) {
       error = 'Something went wrong';
