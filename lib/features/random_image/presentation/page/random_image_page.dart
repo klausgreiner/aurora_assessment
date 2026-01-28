@@ -108,7 +108,7 @@ class _RandomImagePageState extends State<RandomImagePage> {
                             child: Text(
                               store.error!,
                               style: TextStyle(
-                                color: Colors.grey[700],
+                                color: Colors.red[400],
                                 fontSize: 12,
                               ),
                               textAlign: TextAlign.center,
