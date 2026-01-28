@@ -12,12 +12,10 @@ extension ColorListExtension on List<Color> {
   Color get adaptiveTextColor {
     return _averageLuminance > 0.5
         ? Colors.black87
-        : Colors.white.withOpacity(0.87);
+        : Colors.white.withValues(alpha: 0.87);
   }
 
   Color get adaptiveErrorColor {
-    return _averageLuminance > 0.5
-        ? Colors.red[900]!
-        : Colors.redAccent[400]!;
+    return _averageLuminance > 0.5 ? Colors.red[900]! : Colors.redAccent[400]!;
   }
 }
