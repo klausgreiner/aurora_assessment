@@ -1,0 +1,34 @@
+import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
+import '../theme/theme.dart';
+import '../../features/random_image/data/data.dart';
+import '../../features/random_image/domain/domain.dart';
+import '../../features/random_image/presentation/presentation.dart';
+
+final getIt = GetIt.instance;
+
+void setupDI() {
+  getIt.registerLazySingleton(
+    () => Dio(BaseOptions(
+      baseUrl: 'https://november7-730026606190.europe-west1.run.app',
+    )),
+  );
+
+  getIt.registerLazySingleton(() => ImageColorExtractor());
+
+  getIt.registerLazySingleton(
+    () => RandomImageRemoteDataSource(getIt()),
+  );
+
+  getIt.registerLazySingleton<RandomImageRepository>(
+    () => RandomImageRepositoryImpl(getIt()),
+  );
+
+  getIt.registerLazySingleton(
+    () => GetRandomImage(getIt()),
+  );
+
+  getIt.registerFactory(
+    () => RandomImageStore(getIt(), getIt()),
+  );
+}
