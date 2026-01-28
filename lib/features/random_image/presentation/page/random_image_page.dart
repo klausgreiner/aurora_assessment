@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import '../../../../core/core.dart';
 import '../store/store.dart';
 import '../utils/utils.dart';
@@ -15,12 +16,45 @@ class RandomImagePage extends StatefulWidget {
 class _RandomImagePageState extends State<RandomImagePage> {
   late final RandomImageStore store;
   late final Logger logger;
+  ReactionDisposer? _autoReloadReaction;
 
   @override
   void initState() {
     super.initState();
     store = getIt<RandomImageStore>();
     logger = getIt<Logger>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndAutoReload();
+      _setupAutoReloadReaction();
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoReloadReaction?.call();
+    super.dispose();
+  }
+
+  void _setupAutoReloadReaction() {
+    _autoReloadReaction = reaction(
+      (_) => store.isLoading,
+      (bool isLoading) {
+        if (!isLoading && store.imageUrl == null && mounted) {
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (mounted && store.imageUrl == null && !store.isLoading) {
+              _checkAndAutoReload();
+            }
+          });
+        }
+      },
+    );
+  }
+
+  void _checkAndAutoReload() {
+    if (store.imageUrl == null && !store.isLoading) {
+      logger.info('RandomImagePage: No image available, auto-reloading');
+      store.load(context: context);
+    }
   }
 
   Future<void> _loadImage() async {
