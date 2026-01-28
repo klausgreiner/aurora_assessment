@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'core/di/di.dart';
-import 'features/random_image/presentation/page/page.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'core/core.dart';
 
-void main() {
+void main() async {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
   setupDI();
+
   runApp(const MainApp());
 }
 
@@ -27,7 +31,7 @@ class MainApp extends StatelessWidget {
         useMaterial3: true,
       ),
       themeMode: ThemeMode.system,
-      home: RandomImagePage(),
+      home: const SplashGate(),
     );
   }
 }

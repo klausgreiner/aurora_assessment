@@ -1,8 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import '../../../../core/core.dart';
-import '../../domain/domain.dart';
 import '../store/store.dart';
 import '../widgets/widgets.dart';
 
@@ -20,45 +18,10 @@ class _RandomImagePageState extends State<RandomImagePage> {
   void initState() {
     super.initState();
     store = getIt<RandomImageStore>();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadImage();
-    });
   }
 
   Future<void> _loadImage() async {
-    store.isLoading = true;
-    store.error = null;
-
-    try {
-      final getRandomImage = getIt<GetRandomImage>();
-      final image = await getRandomImage();
-      final newImageUrl = image.url;
-
-      final precacheService = getIt<ImagePrecacheService>();
-      final ok = await precacheService.precacheUrl(
-        url: newImageUrl,
-        context: context,
-      );
-      if (!ok) {
-        store.error = 'Could not load that image. Keeping the current one.';
-        return;
-      }
-
-      final colorExtractor = getIt<ImageColorExtractor>();
-      final newGradientColors = await colorExtractor.gradientColors(
-        CachedNetworkImageProvider(newImageUrl),
-      );
-
-      store.imageUrl = newImageUrl;
-
-      await Future.delayed(const Duration(milliseconds: 120));
-
-      store.gradientColors = newGradientColors;
-    } catch (e) {
-      store.error = 'Could not load that image. Keeping the current one.';
-    } finally {
-      store.isLoading = false;
-    }
+    await store.loadNext(context: context);
   }
 
   @override
@@ -82,7 +45,12 @@ class _RandomImagePageState extends State<RandomImagePage> {
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: ImageView(imageUrl: store.imageUrl),
+                      child: ImageView(
+                        imageUrl: store.imageUrl,
+                        nextImageUrl: store.nextImageUrl,
+                        onNextImageDecoded: store.applyNextColors,
+                        onCrossfadeComplete: store.commitNextImage,
+                      ),
                     ),
                   ),
                 ),

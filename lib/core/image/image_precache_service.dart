@@ -29,4 +29,3 @@ class ImagePrecacheService {
     return completer.future;
   }
 }
-

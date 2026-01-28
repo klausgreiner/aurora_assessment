@@ -12,6 +12,8 @@ void setupDI() {
   getIt.registerLazySingleton(
     () => Dio(BaseOptions(
       baseUrl: 'https://november7-730026606190.europe-west1.run.app',
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 5),
     )),
   );
 
@@ -30,7 +32,7 @@ void setupDI() {
     () => GetRandomImage(getIt()),
   );
 
-  getIt.registerFactory(
-    () => RandomImageStore(getIt(), getIt()),
+  getIt.registerLazySingleton(
+    () => RandomImageStore(getIt(), getIt(), getIt()),
   );
 }
