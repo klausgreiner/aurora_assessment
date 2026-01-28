@@ -29,10 +29,10 @@
                                 translatesAutoresizingMaskIntoConstraints="NO" id="YRO-k0-Ey4">
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="Ze5-6b-2t3"
-                                        secondAttribute="width" multiplier="0.25"
+                                        secondAttribute="width" multiplier="0.5"
                                         id="width-constraint" />
                                     <constraint firstAttribute="height" secondItem="Ze5-6b-2t3"
-                                        secondAttribute="width" multiplier="0.25"
+                                        secondAttribute="width" multiplier="0.5"
                                         id="height-constraint" />
                                 </constraints>
                             </imageView>
