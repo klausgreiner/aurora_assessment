@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import '../../../../core/core.dart';
 import '../store/store.dart';
+import '../utils/utils.dart';
 import '../widgets/widgets.dart';
 
 class RandomImagePage extends StatefulWidget {
@@ -30,17 +31,6 @@ class _RandomImagePageState extends State<RandomImagePage> {
     logger.info(
       'RandomImagePage._loadImage: loadNext completed, isLoading=${store.isLoading}',
     );
-  }
-
-  Color _getAdaptiveTextColor(List<Color> gradientColors) {
-    double totalLuminance = 0;
-    for (final color in gradientColors) {
-      totalLuminance += color.computeLuminance();
-    }
-    final averageLuminance = totalLuminance / gradientColors.length;
-    return averageLuminance > 0.5
-        ? Colors.black87
-        : Colors.white.withOpacity(0.87);
   }
 
   @override
@@ -90,7 +80,7 @@ class _RandomImagePageState extends State<RandomImagePage> {
                             child: Text(
                               store.error ?? '',
                               style: TextStyle(
-                                color: Colors.red[400],
+                                color: store.gradientColors.adaptiveErrorColor,
                                 fontSize: 12,
                               ),
                               textAlign: TextAlign.center,
@@ -113,7 +103,7 @@ class _RandomImagePageState extends State<RandomImagePage> {
                       Text(
                         AppLocalizations.of(context)!.instructionTapAnother,
                         style: TextStyle(
-                          color: _getAdaptiveTextColor(store.gradientColors),
+                          color: store.gradientColors.adaptiveTextColor,
                           fontSize: 14,
                         ),
                       ),
