@@ -82,10 +82,7 @@ class _RandomImagePageState extends State<RandomImagePage> {
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: ImageView(
-                        imageUrl: store.imageUrl,
-                        isLoading: store.isLoading,
-                      ),
+                      child: ImageView(imageUrl: store.imageUrl),
                     ),
                   ),
                 ),

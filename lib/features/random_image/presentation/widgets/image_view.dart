@@ -3,13 +3,8 @@ import 'package:flutter/material.dart';
 
 class ImageView extends StatelessWidget {
   final String? imageUrl;
-  final bool isLoading;
 
-  const ImageView({
-    super.key,
-    this.imageUrl,
-    required this.isLoading,
-  });
+  const ImageView({super.key, this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -18,27 +13,32 @@ class ImageView extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 450),
-          switchInCurve: Curves.easeOutCubic,
-          switchOutCurve: Curves.easeInCubic,
+          duration: const Duration(milliseconds: 1200),
+          switchInCurve: Curves.linear,
+          switchOutCurve: Curves.linear,
           transitionBuilder: (child, animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 0.98, end: 1.0).animate(animation),
-                child: child,
+            final opacity = CurvedAnimation(
+              parent: animation,
+              curve: const Interval(0.55, 1.0, curve: Curves.easeOutCubic),
+              reverseCurve: const Interval(
+                0.0,
+                0.45,
+                curve: Curves.easeInCubic,
               ),
             );
+            return FadeTransition(opacity: opacity, child: child);
           },
           child: imageUrl == null
-              ? const SizedBox(key: ValueKey('empty'))
-              : Image(
+              ? const SizedBox.expand(key: ValueKey('empty'))
+              : SizedBox.expand(
                   key: ValueKey(imageUrl),
-                  image: CachedNetworkImageProvider(imageUrl!),
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.error, color: Colors.grey),
+                  child: Image(
+                    image: CachedNetworkImageProvider(imageUrl!),
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.error, color: Colors.grey),
+                    ),
                   ),
                 ),
         ),
