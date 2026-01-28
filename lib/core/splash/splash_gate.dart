@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import '../../features/random_image/presentation/presentation.dart';
 import '../di/di.dart';
+import '../generated/app_localizations.dart';
 import 'splash_screen.dart';
 
 class SplashGate extends StatefulWidget {
@@ -36,7 +37,7 @@ class _SplashGateState extends State<SplashGate> {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _error = 'Failed to load initial image';
+          _error = AppLocalizations.of(context)!.errorFailedToLoadInitialImage;
         });
       }
     }
@@ -64,7 +65,7 @@ class _SplashGateState extends State<SplashGate> {
                   });
                   _loadInitialImage();
                 },
-                child: const Text('Retry'),
+                child: Text(AppLocalizations.of(context)!.buttonRetry),
               ),
             ],
           ),

@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../../../../core/generated/app_localizations.dart';
 
 class PullingColorButton extends StatefulWidget {
   final bool isLoading;
@@ -156,7 +157,7 @@ class _PullingColorButtonState extends State<PullingColorButton>
                           child: Opacity(
                             opacity: _textOpacityAnimation.value,
                             child: Text(
-                              'Another',
+                              AppLocalizations.of(context)!.buttonAnother,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,

@@ -83,9 +83,9 @@ abstract class _RandomImageStore with Store {
       } catch (e) {
         logger.error('RandomImageStore.load: Precache threw exception', e);
         if (e is Failure) {
-          error = e.message;
+          error = _localizeError(e.message, context);
         } else {
-          error = 'Could not load that image. Try again.';
+          error = AppLocalizations.of(context)!.errorCouldNotLoadImage;
         }
         return;
       }
@@ -97,7 +97,7 @@ abstract class _RandomImageStore with Store {
 
       if (!precacheOk) {
         logger.warning('RandomImageStore.load: Precache returned false, setting error');
-        error = 'Could not load that image. Try again.';
+        error = AppLocalizations.of(context)!.errorCouldNotLoadImage;
         return;
       }
 
@@ -107,13 +107,13 @@ abstract class _RandomImageStore with Store {
         newGradientColors = await colorExtractor.gradientColors(CachedNetworkImageProvider(newImageUrl));
         if (newGradientColors.isEmpty) {
           logger.warning('RandomImageStore.load: Color extraction returned empty list');
-          error = 'Could not extract colors from image. Try again.';
+          error = AppLocalizations.of(context)!.errorCouldNotExtractColors;
           return;
         }
         logger.info('RandomImageStore.load: Color extraction completed with ${newGradientColors.length} colors');
       } catch (e, stackTrace) {
         logger.error('RandomImageStore.load: Color extraction failed', e, stackTrace);
-        error = 'Could not extract colors from image. Try again.';
+        error = AppLocalizations.of(context)!.errorCouldNotExtractColors;
         return;
       }
       
@@ -124,9 +124,9 @@ abstract class _RandomImageStore with Store {
     } catch (e, stackTrace) {
       logger.error('RandomImageStore.load: Exception caught', e, stackTrace);
       if (e is Failure) {
-        error = e.message;
+        error = _localizeError(e.message, context);
       } else {
-        error = 'Could not load that image. Try again.';
+        error = AppLocalizations.of(context)!.errorCouldNotLoadImage;
       }
     } finally {
       logger.info('RandomImageStore.load: Setting isLoading=false');
@@ -155,9 +155,9 @@ abstract class _RandomImageStore with Store {
       } catch (e) {
         logger.error('RandomImageStore.loadNext: Precache threw exception', e);
         if (e is Failure) {
-          error = e.message;
+          error = _localizeError(e.message, context);
         } else {
-          error = 'Could not load that image. Try again.';
+          error = AppLocalizations.of(context)!.errorCouldNotLoadImage;
         }
         return;
       }
@@ -169,7 +169,7 @@ abstract class _RandomImageStore with Store {
 
       if (!precacheOk) {
         logger.warning('RandomImageStore.loadNext: Precache returned false, setting error');
-        error = 'Could not load that image. Try again.';
+        error = AppLocalizations.of(context)!.errorCouldNotLoadImage;
         return;
       }
 
@@ -179,13 +179,13 @@ abstract class _RandomImageStore with Store {
         newGradientColors = await colorExtractor.gradientColors(CachedNetworkImageProvider(newImageUrl));
         if (newGradientColors.isEmpty) {
           logger.warning('RandomImageStore.loadNext: Color extraction returned empty list');
-          error = 'Could not extract colors from image. Try again.';
+          error = AppLocalizations.of(context)!.errorCouldNotExtractColors;
           return;
         }
         logger.info('RandomImageStore.loadNext: Color extraction completed with ${newGradientColors.length} colors');
       } catch (e, stackTrace) {
         logger.error('RandomImageStore.loadNext: Color extraction failed', e, stackTrace);
-        error = 'Could not extract colors from image. Try again.';
+        error = AppLocalizations.of(context)!.errorCouldNotExtractColors;
         return;
       }
 
@@ -195,13 +195,38 @@ abstract class _RandomImageStore with Store {
     } catch (e, stackTrace) {
       logger.error('RandomImageStore.loadNext: Exception caught', e, stackTrace);
       if (e is Failure) {
-        error = e.message;
+        error = _localizeError(e.message, context);
       } else {
-        error = 'Could not load that image. Try again.';
+        error = AppLocalizations.of(context)!.errorCouldNotLoadImage;
       }
     } finally {
       logger.info('RandomImageStore.loadNext: Setting isLoading=false');
       isLoading = false;
+    }
+  }
+
+  String _localizeError(String errorMessage, BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    if (errorMessage.contains('Image not found') || errorMessage.contains('404')) {
+      return l10n.errorImageNotFound;
+    } else if (errorMessage.contains('Access denied') || errorMessage.contains('403')) {
+      return l10n.errorAccessDenied;
+    } else if (errorMessage.contains('Server error') || 
+               errorMessage.contains('500') || 
+               errorMessage.contains('502') || 
+               errorMessage.contains('503')) {
+      return l10n.errorServerError;
+    } else if (errorMessage.contains('timed out') || errorMessage.contains('Timeout')) {
+      return l10n.errorImageLoadTimeout;
+    } else if (errorMessage.contains('Network error') || errorMessage.contains('network')) {
+      return l10n.errorNetworkError;
+    } else if (errorMessage.contains('Connection error') || errorMessage.contains('connection')) {
+      return l10n.errorConnectionError;
+    } else if (errorMessage.contains('Request timed out')) {
+      return l10n.errorRequestTimeout;
+    } else {
+      return l10n.errorFailedToLoadImage;
     }
   }
 }

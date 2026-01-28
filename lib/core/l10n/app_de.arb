@@ -1,0 +1,21 @@
+{
+  "@@locale": "de",
+  "appTitle": "Zufälliges Bild",
+  "buttonAnother": "Weiteres",
+  "instructionTapAnother": "Tippen Sie auf 'Weiteres' für ein neues Bild",
+  "semanticsImageLoadMessage": "Bildladungsnachricht",
+  "semanticsLoadAnotherImage": "Weiteres zufälliges Bild laden",
+  "errorFailedToLoadInitialImage": "Fehler beim Laden des ersten Bildes",
+  "buttonRetry": "Wiederholen",
+  "errorCouldNotLoadImage": "Bild konnte nicht geladen werden. Bitte erneut versuchen.",
+  "errorCouldNotExtractColors": "Farben konnten nicht aus dem Bild extrahiert werden. Bitte erneut versuchen.",
+  "errorImageNotFound": "Bild nicht gefunden. Bitte erneut versuchen.",
+  "errorAccessDenied": "Zugriff verweigert (403). Dieses Bild kann nicht geladen werden.",
+  "errorServerError": "Serverfehler. Bitte erneut versuchen.",
+  "errorImageLoadTimeout": "Bildladung abgelaufen. Bitte erneut versuchen.",
+  "errorNetworkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
+  "errorFailedToLoadImage": "Bild konnte nicht geladen werden. Bitte erneut versuchen.",
+  "errorImageLoadTimeoutAfterSeconds": "Bildladung nach 3 Sekunden abgelaufen",
+  "errorRequestTimeout": "Anfrage abgelaufen. Bitte erneut versuchen.",
+  "errorConnectionError": "Verbindungsfehler. Bitte überprüfen Sie Ihr Internet."
+}

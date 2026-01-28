@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import '../../../../core/core.dart';
-import '../../../../core/di/di.dart';
 import '../store/store.dart';
 import '../widgets/widgets.dart';
 
@@ -24,9 +23,24 @@ class _RandomImagePageState extends State<RandomImagePage> {
   }
 
   Future<void> _loadImage() async {
-    logger.info('RandomImagePage._loadImage: Button pressed, isLoading=${store.isLoading}');
+    logger.info(
+      'RandomImagePage._loadImage: Button pressed, isLoading=${store.isLoading}',
+    );
     await store.loadNext(context: context);
-    logger.info('RandomImagePage._loadImage: loadNext completed, isLoading=${store.isLoading}');
+    logger.info(
+      'RandomImagePage._loadImage: loadNext completed, isLoading=${store.isLoading}',
+    );
+  }
+
+  Color _getAdaptiveTextColor(List<Color> gradientColors) {
+    double totalLuminance = 0;
+    for (final color in gradientColors) {
+      totalLuminance += color.computeLuminance();
+    }
+    final averageLuminance = totalLuminance / gradientColors.length;
+    return averageLuminance > 0.5
+        ? Colors.black87
+        : Colors.white.withOpacity(0.87);
   }
 
   @override
@@ -70,7 +84,9 @@ class _RandomImagePageState extends State<RandomImagePage> {
                           opacity: store.error != null ? 1.0 : 0.0,
                           duration: const Duration(milliseconds: 200),
                           child: Semantics(
-                            label: 'Image load message',
+                            label: AppLocalizations.of(
+                              context,
+                            )!.semanticsImageLoadMessage,
                             child: Text(
                               store.error ?? '',
                               style: TextStyle(
@@ -83,7 +99,9 @@ class _RandomImagePageState extends State<RandomImagePage> {
                         ),
                       ),
                       Semantics(
-                        label: 'Load another random image',
+                        label: AppLocalizations.of(
+                          context,
+                        )!.semanticsLoadAnotherImage,
                         button: true,
                         child: PullingColorButton(
                           isLoading: store.isLoading,
@@ -93,8 +111,11 @@ class _RandomImagePageState extends State<RandomImagePage> {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        "Tap 'Another' for a new image",
-                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                        AppLocalizations.of(context)!.instructionTapAnother,
+                        style: TextStyle(
+                          color: _getAdaptiveTextColor(store.gradientColors),
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),

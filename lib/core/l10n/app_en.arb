@@ -1,0 +1,75 @@
+{
+  "@@locale": "en",
+  "appTitle": "Random Image",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "buttonAnother": "Another",
+  "@buttonAnother": {
+    "description": "Button label to load another random image"
+  },
+  "instructionTapAnother": "Tap 'Another' for a new image",
+  "@instructionTapAnother": {
+    "description": "Instruction text telling user to tap the Another button"
+  },
+  "semanticsImageLoadMessage": "Image load message",
+  "@semanticsImageLoadMessage": {
+    "description": "Semantics label for image load message"
+  },
+  "semanticsLoadAnotherImage": "Load another random image",
+  "@semanticsLoadAnotherImage": {
+    "description": "Semantics label for the button that loads another random image"
+  },
+  "errorFailedToLoadInitialImage": "Failed to load initial image",
+  "@errorFailedToLoadInitialImage": {
+    "description": "Error message when initial image fails to load"
+  },
+  "buttonRetry": "Retry",
+  "@buttonRetry": {
+    "description": "Button label to retry loading"
+  },
+  "errorCouldNotLoadImage": "Could not load that image. Try again.",
+  "@errorCouldNotLoadImage": {
+    "description": "Error message when image cannot be loaded"
+  },
+  "errorCouldNotExtractColors": "Could not extract colors from image. Try again.",
+  "@errorCouldNotExtractColors": {
+    "description": "Error message when colors cannot be extracted from image"
+  },
+  "errorImageNotFound": "Image not found. Please retry.",
+  "@errorImageNotFound": {
+    "description": "Error message when image is not found (404)"
+  },
+  "errorAccessDenied": "Access denied (403). Cannot load this image.",
+  "@errorAccessDenied": {
+    "description": "Error message when access is denied (403)"
+  },
+  "errorServerError": "Server error. Please try again.",
+  "@errorServerError": {
+    "description": "Error message for server errors (500, 502, 503)"
+  },
+  "errorImageLoadTimeout": "Image load timed out. Please try again.",
+  "@errorImageLoadTimeout": {
+    "description": "Error message when image load times out"
+  },
+  "errorNetworkError": "Network error. Please check your connection.",
+  "@errorNetworkError": {
+    "description": "Error message for network errors"
+  },
+  "errorFailedToLoadImage": "Failed to load image. Please try again.",
+  "@errorFailedToLoadImage": {
+    "description": "Generic error message when image fails to load"
+  },
+  "errorImageLoadTimeoutAfterSeconds": "Image load timed out after 3 seconds",
+  "@errorImageLoadTimeoutAfterSeconds": {
+    "description": "Error message when image load times out after specific duration"
+  },
+  "errorRequestTimeout": "Request timed out. Please try again.",
+  "@errorRequestTimeout": {
+    "description": "Error message when request times out"
+  },
+  "errorConnectionError": "Connection error. Please check your internet.",
+  "@errorConnectionError": {
+    "description": "Error message for connection errors"
+  }
+}
